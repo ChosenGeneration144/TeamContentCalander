@@ -1,0 +1,1148 @@
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Social Media Content Calendar</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Lucide Icons for aesthetic buttons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Poppins', sans-serif; background-color: #f0f4f8; /* Light blue-gray background */ }
+        .card { transition: all 0.3s ease-in-out; border-radius: 1.25rem; /* More rounded corners */ }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); } /* Softer, elevated shadow */
+        
+        /* Custom scrollbar for textareas */
+        textarea::-webkit-scrollbar { width: 8px; }
+        textarea::-webkit-scrollbar-track { background: #e2e8f0; } /* Lighter track */
+        textarea::-webkit-scrollbar-thumb { background-color: #a78bff; border-radius: 10px; border: 2px solid #e2e8f0; } /* Vibrant thumb */
+
+        .data-table th, .data-table td { padding: 1rem; text-align: left; } /* More padding for table cells */
+        .data-table th { background-color: #edf2f7; /* Lighter header background */ color: #4a5568; font-weight: 600; } /* Darker text, bolder */
+        .data-table tr:nth-child(even) { background-color: #f7fafc; /* Lighter even rows */ }
+        .data-table tr:hover { background-color: #e0e7ff; /* Light hover for rows */ }
+
+        /* Custom urgency class */
+        .row-urgent { background-color: #fff8e1; /* Very light yellow/orange */ border-left: 5px solid #ffcc80; }
+        .row-urgent:hover { background-color: #ffedb3; }
+
+
+        /* General button styling for consistent look */
+        .btn-primary {
+            background-color: #6366f1; /* Tailwind indigo-500 */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem; /* Rounded */
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .btn-primary:hover {
+            background-color: #4f46e5; /* Darker indigo */
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .btn-secondary {
+            background-color: #e2e8f0; /* Light gray */
+            color: #4a5568; /* Dark gray text */
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 500;
+            transition: all 0.2s ease-in-out;
+        }
+        .btn-secondary:hover {
+            background-color: #cbd5e0; /* Slightly darker gray */
+            transform: translateY(-1px);
+        }
+
+        /* Modal specific styling */
+        #reportModal > div { border-radius: 1.5rem; } /* More rounded modal */
+        #reportModal .sticky { background-color: #ffffff; } /* Ensure sticky headers are white */
+    </style>
+</head>
+<body class="p-4 sm:p-8 bg-gradient-to-br from-indigo-50 to-purple-100 min-h-screen">
+
+    <div class="max-w-7xl mx-auto">
+        <header class="text-center mb-12 relative">
+            <h1 class="text-5xl font-extrabold text-indigo-700 tracking-tight leading-tight">Social Media Content Hub ✨</h1>
+            <p class="mt-4 text-xl text-gray-600">Your all-in-one platform to plan, create, track, and optimize social content.</p>
+            
+            <!-- NEW: User ID Display (Mandatory for multi-user apps) -->
+            <div id="userIdDisplay" class="absolute top-0 right-0 p-2 text-xs font-mono text-gray-600 bg-gray-100 rounded-lg shadow-inner border border-gray-200 hidden md:block">
+                User ID: Loading...
+            </div>
+            <!-- END User ID Display -->
+
+        </header>
+
+        <!-- Content Submission Form -->
+        <div class="bg-white p-8 rounded-2xl shadow-lg card border-t-8 border-indigo-400 mb-10">
+            <h2 class="text-3xl font-bold mb-8 text-gray-800 flex items-center space-x-3">
+                <i data-lucide="plus-circle" class="w-8 h-8 text-indigo-500"></i>
+                <span>Add New Content Post</span>
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                
+                <!-- Date -->
+                <div>
+                    <label for="postDate" class="block text-sm font-medium text-gray-700 mb-1">Publish Date</label>
+                    <input type="date" id="postDate" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2.5 border text-gray-800">
+                </div>
+                
+                <!-- Platform -->
+                <div>
+                    <label for="postPlatform" class="block text-sm font-medium text-gray-700 mb-1">Platform</label>
+                    <select id="postPlatform" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2.5 border text-gray-800">
+                        <option value="">-- Select Platform --</option>
+                        <option value="Instagram">Instagram</option>
+                        <option value="TikTok">TikTok</option>
+                        <option value="YouTube">YouTube</option>
+                        <option value="X (Twitter)">X (Twitter)</option>
+                        <option value="LinkedIn">LinkedIn</option>
+                        <option value="Facebook">Facebook</option>
+                    </select>
+                </div>
+
+                <!-- Content Type -->
+                <div>
+                    <label for="postType" class="block text-sm font-medium text-gray-700 mb-1">Content Type</label>
+                    <select id="postType" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2.5 border text-gray-800">
+                        <option value="">-- Select Type --</option>
+                        <option value="Reel">Reel / Short</option>
+                        <option value="Static Post">Static Image/Text</option>
+                        <option value="Carousel">Carousel</option>
+                        <option value="Article">Article / Long-form</option>
+                        <option value="Live Stream">Live Stream</option>
+                    </select>
+                </div>
+                
+                <!-- Topic -->
+                <div>
+                    <label for="postTopic" class="block text-sm font-medium text-gray-700 mb-1">Topic/Title</label>
+                    <input type="text" id="postTopic" placeholder="e.g., Q3 Strategy Review" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2.5 border text-gray-800">
+                </div>
+            </div>
+
+            <!-- Team Assignment Row -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 p-4 rounded-xl bg-gray-50 border border-gray-200">
+                <h3 class="text-lg font-bold text-gray-700 md:col-span-3 mb-2">Team Assignment & Budget</h3>
+                
+                <!-- Creator (Read-only, shows current user) -->
+                <div>
+                    <label for="postCreator" class="block text-sm font-medium text-gray-700 mb-1">Creator (Your ID)</label>
+                    <input type="text" id="postCreator" value="Loading..." readonly class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-2.5 border bg-gray-100 text-gray-600 text-sm font-mono truncate">
+                </div>
+                
+                <!-- Approver/Reviewer (NOW A SELECT) -->
+                <div>
+                    <label for="postApprover" class="block text-sm font-medium text-gray-700 mb-1">Approver/Reviewer</label>
+                    <select id="postApprover" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2.5 border text-gray-800">
+                        <!-- Options populated by JavaScript -->
+                    </select>
+                </div>
+                
+                <!-- Post Cost (Budget) -->
+                <div>
+                    <label for="postCost" class="block text-sm font-medium text-gray-700 mb-1">Post Cost (Budget)</label>
+                    <input type="number" id="postCost" value="0" min="0" placeholder="0" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2.5 border text-gray-800">
+                </div>
+            </div>
+            <!-- End Team Assignment Row -->
+            
+            <!-- Script/Content Area -->
+            <div class="mb-6">
+                <label for="postScript" class="block text-sm font-medium text-gray-700 mb-1">Script / Long-Form Content</label>
+                <textarea id="postScript" rows="6" placeholder="Write your video script, full caption, or article outline here..." class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2.5 border resize-y text-gray-800"></textarea>
+            </div>
+            
+            <!-- Supplementary Planning Section (Hooks & Resources) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <!-- Hooks -->
+                <div>
+                    <label for="postHooks" class="block text-sm font-medium text-gray-700 mb-1">Hooks / Starting Lines (Brainstorm)</label>
+                    <textarea id="postHooks" rows="3" placeholder="3-5 catchy opening lines, e.g., 'Stop scrolling if you want to know...' or 'The best mistake I ever made was...'" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2.5 border resize-y text-gray-800"></textarea>
+                </div>
+                <!-- Resources/Links -->
+                <div>
+                    <label for="postResources" class="block text-sm font-medium text-gray-700 mb-1">Resources, Source Links, & Assets</label>
+                    <textarea id="postResources" rows="3" placeholder="External links, data sources, cloud storage links for raw assets, etc." class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2.5 border resize-y text-gray-800"></textarea>
+                </div>
+            </div>
+            <!-- END Supplementary Planning Section -->
+
+            <!-- Analytics Tracking Section -->
+            <div id="analyticsInputSection" class="p-6 rounded-xl bg-blue-50 border border-blue-200 mb-8 hidden">
+                <h3 class="text-xl font-bold mb-4 text-blue-700 flex items-center space-x-2">
+                    <i data-lucide="line-chart" class="w-6 h-6 text-blue-500"></i>
+                    <span>Analytics Tracking (Enter data for published posts)</span>
+                </h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                        <label for="postViews" class="block text-sm font-medium text-gray-700">Views</label>
+                        <input type="number" id="postViews" value="0" min="0" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-2.5 border text-gray-800">
+                    </div>
+                    <div>
+                        <label for="postLikes" class="block text-sm font-medium text-gray-700">Likes</label>
+                        <input type="number" id="postLikes" value="0" min="0" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-2.5 border text-gray-800">
+                    </div>
+                    <div>
+                        <label for="postComments" class="block text-sm font-medium text-gray-700">Comments</label>
+                        <input type="number" id="postComments" value="0" min="0" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-2.5 border text-gray-800">
+                    </div>
+                    <div>
+                        <label for="postShares" class="block text-sm font-medium text-gray-700">Shares</label>
+                        <input type="number" id="postShares" value="0" min="0" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-2.5 border text-gray-800">
+                    </div>
+                </div>
+            </div>
+            <!-- END Analytics Tracking Section -->
+
+            <button id="savePostBtn" onclick="savePost()" class="btn-primary w-full">
+                <i id="buttonIcon" data-lucide="calendar-plus" class="w-5 h-5"></i>
+                <span id="buttonText">Schedule Content</span>
+            </button>
+        </div>
+
+        <!-- Filtering Controls and Export -->
+        <div class="bg-white p-6 rounded-2xl shadow-lg card border-t-8 border-purple-400 mb-8 flex flex-col sm:flex-row gap-6 items-center justify-between">
+            <h3 class="text-2xl font-bold text-gray-800 flex items-center space-x-2">
+                <i data-lucide="filter" class="w-6 h-6 text-purple-500"></i>
+                <span>Filter Content</span>
+            </h3>
+            
+            <div class="flex-grow grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div>
+                    <label for="filterPlatform" class="block text-sm font-medium text-gray-700 mb-1">Filter by Platform</label>
+                    <select id="filterPlatform" onchange="renderCalendar()" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-2.5 border text-gray-800 text-sm">
+                        <option value="all">All Platforms</option>
+                        <option value="Instagram">Instagram</option>
+                        <option value="TikTok">TikTok</option>
+                        <option value="YouTube">YouTube</option>
+                        <option value="X (Twitter)">X (Twitter)</option>
+                        <option value="LinkedIn">LinkedIn</option>
+                        <option value="Facebook">Facebook</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="filterStatus" class="block text-sm font-medium text-gray-700 mb-1">Filter by Status</label>
+                    <select id="filterStatus" onchange="renderCalendar()" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-2.5 border text-gray-800 text-sm">
+                        <option value="all">All Statuses</option>
+                        <option value="Draft">Draft</option>
+                        <option value="Ready">Ready</option>
+                        <option value="Scheduled">Scheduled</option>
+                        <option value="Published">Published</option>
+                    </select>
+                </div>
+
+                <!-- Filter by Approval Status -->
+                 <div>
+                    <label for="filterApproval" class="block text-sm font-medium text-gray-700 mb-1">Filter by Approval</label>
+                    <select id="filterApproval" onchange="renderCalendar()" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-2.5 border text-gray-800 text-sm">
+                        <option value="all">All Approvals</option>
+                        <option value="Pending">Pending Review</option>
+                        <option value="Approved">Approved</option>
+                        <option value="Changes Needed">Changes Needed</option>
+                        <option value="N/A">N/A (Skip)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Report & Export Buttons -->
+        <div class="flex justify-end gap-4 mb-8">
+            <button onclick="exportCSV()" class="btn-primary bg-green-600 hover:bg-green-700">
+                 <i data-lucide="file-text" class="w-5 h-5"></i>
+                <span>Export Data (CSV)</span>
+            </button>
+            <button onclick="showReportModal()" class="btn-primary bg-purple-600 hover:bg-purple-700">
+                <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+                <span>Generate Analytics Report</span>
+            </button>
+        </div>
+
+        <!-- Content List/Calendar View -->
+        <div class="bg-white p-8 rounded-2xl shadow-lg card border-t-8 border-purple-400 overflow-x-auto">
+            <h2 class="text-3xl font-bold mb-6 text-gray-800 flex items-center space-x-3">
+                <i data-lucide="calendar" class="w-8 h-8 text-purple-500"></i>
+                <span>Scheduled Content</span>
+            </h2>
+            <p id="emptyMessage" class="text-gray-500 text-center py-10 text-lg hidden">
+                Your calendar is empty! Use the form above to add your first post.
+            </p>
+            <table class="min-w-full divide-y divide-gray-200 data-table">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        <th class="px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Creator</th>
+                        <th class="px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Platform</th>
+                        <th class="px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Topic</th>
+                        <th class="px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Cost</th> <!-- NEW -->
+                        <th class="px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Content</th>
+                        <th class="px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Approval</th>
+                        <th class="px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Performance</th>
+                        <th class="px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="calendarBody" class="bg-white divide-y divide-gray-200 text-sm">
+                    <!-- Content rows will be injected here -->
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <!-- Analytics Report Modal -->
+    <div id="reportModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto transform scale-95 opacity-0 transition-all duration-300 ease-out">
+            <!-- Modal Header -->
+            <div class="sticky top-0 bg-white p-6 border-b border-gray-200 flex justify-between items-center z-10">
+                <h2 class="text-2xl font-bold text-indigo-700">Content Performance Report</h2>
+                <button onclick="closeReportModal()" class="text-gray-500 hover:text-gray-900 transition duration-150 p-2 rounded-full hover:bg-gray-100">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <!-- Modal Body (Report Content) -->
+            <div id="reportContent" class="p-6">
+                <!-- Report details will be injected here by generateReport() -->
+            </div>
+            <!-- Modal Footer -->
+            <div class="sticky bottom-0 bg-white p-4 border-t border-gray-200 flex justify-end z-10">
+                <button onclick="closeReportModal()" class="btn-secondary">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="module">
+        // Import Firebase components
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, addDoc, updateDoc, deleteDoc, onSnapshot, collection, setLogLevel, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Initialize Lucide icons
+        lucide.createIcons();
+        
+        // --- NEW: Centralized Team List for Approver consistency ---
+        const TEAM_MEMBERS = [
+            { id: '', name: '-- Select Approver --' },
+            { id: 'TeamLead', name: 'Marketing Team Lead' },
+            { id: 'Copywriter', name: 'Lead Copywriter' },
+            { id: 'Designer', name: 'Content Designer' },
+            { id: 'Client', name: 'Client/Stakeholder' },
+            { id: 'Other', name: 'Other/Self-Review' }
+        ];
+
+        // --- GLOBAL FIREBASE/APP VARIABLES ---
+        let db;
+        let auth;
+        let app;
+        let userId;
+        const FIREBASE_COLLECTION_NAME = 'content_calendar';
+
+        // Firestore is needed for persistent storage. These variables are mandatory.
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        
+        // --- DATA STATE (Now populated by Firestore listener) ---
+        let calendarData = [];
+        let editingPostId = null; // Stores the ID of the post currently being edited
+
+
+        /**
+         * Initializes Firebase and authenticates the user.
+         */
+        async function initFirebaseAndAuth() {
+            try {
+                // 1. Initialize Firebase
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                setLogLevel('Debug'); // Enable logging for debugging
+
+                // 2. Authenticate
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                // 3. Set up Auth State Listener
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        document.getElementById('userIdDisplay').textContent = \`User ID: \${userId}\`;
+                        document.getElementById('userIdDisplay').classList.remove('hidden');
+                        document.getElementById('postCreator').value = userId; // Set creator field
+                        // Start listening to the cloud database only after authentication
+                        listenForContent();
+                    } else {
+                        console.error("Authentication failed. Cannot access database.");
+                        document.getElementById('userIdDisplay').textContent = 'User ID: UNAUTHENTICATED';
+                    }
+                });
+
+            } catch (error) {
+                console.error("Firebase Initialization Error:", error);
+                document.getElementById('userIdDisplay').textContent = 'User ID: ERROR';
+            }
+        }
+        
+        /**
+         * Determines the public Firestore path for the shared collection.
+         * Structure: /artifacts/{appId}/public/data/content_calendar
+         */
+        function getContentCollectionRef() {
+            if (!db) return;
+            const path = \`artifacts/\${appId}/public/data/\${FIREBASE_COLLECTION_NAME}\`;
+            return collection(db, path);
+        }
+
+        /**
+         * Listens for real-time changes from Firestore and updates the UI.
+         */
+        function listenForContent() {
+            const contentRef = getContentCollectionRef();
+            if (!contentRef) return;
+
+            // Sort posts by date locally after fetching, as orderBy() can introduce complexity in Firestore
+            onSnapshot(contentRef, (snapshot) => {
+                const newCalendarData = [];
+                snapshot.forEach((doc) => {
+                    // Combine doc ID with the data
+                    newCalendarData.push({ id: doc.id, ...doc.data() });
+                });
+                
+                // Sort data by date (Client-side sorting)
+                calendarData = newCalendarData.sort((a, b) => new Date(a.date) - new Date(b.date));
+                
+                console.log(\`[Firestore] Updated. Total posts: \${calendarData.length}\`);
+                renderCalendar();
+            }, (error) => {
+                console.error("Error listening to Firestore:", error);
+                showToast('Database connection lost.', 'bg-red-600');
+            });
+        }
+
+
+        /**
+         * Clears the input form and resets the editing state.
+         */
+        function clearForm() {
+            document.getElementById('postDate').value = '';
+            document.getElementById('postPlatform').value = '';
+            document.getElementById('postType').value = '';
+            document.getElementById('postTopic').value = '';
+            document.getElementById('postScript').value = '';
+            
+            // Reset Planning fields
+            document.getElementById('postHooks').value = '';
+            document.getElementById('postResources').value = '';
+            
+            // Reset Assignment/Approval fields
+            document.getElementById('postApprover').value = ''; // Use the first option of the select
+            
+            // NEW: Reset Cost field
+            document.getElementById('postCost').value = 0;
+
+
+            // Reset Analytics fields
+            document.getElementById('postViews').value = 0;
+            document.getElementById('postLikes').value = 0;
+            document.getElementById('postComments').value = 0;
+            document.getElementById('postShares').value = 0;
+            document.getElementById('analyticsInputSection').classList.add('hidden');
+            
+            editingPostId = null;
+            
+            // Reset button to "Schedule Content"
+            const savePostBtn = document.getElementById('savePostBtn');
+            const buttonText = document.getElementById('buttonText');
+            const buttonIcon = document.getElementById('buttonIcon');
+
+            buttonText.textContent = 'Schedule Content';
+            savePostBtn.classList.remove('bg-purple-600', 'hover:bg-purple-700');
+            savePostBtn.classList.add('bg-indigo-600', 'hover:bg-indigo-700'); // Revert to primary color
+            
+            // Update icon to calendar-plus
+            buttonIcon.outerHTML = lucide.createIcons()['calendar-plus'].toSvg({class: 'w-5 h-5', id: 'buttonIcon'});
+            lucide.createIcons(); // Re-render Lucide icons
+        }
+
+
+        /**
+         * Adds a new post or updates an existing one using Firestore.
+         */
+        async function savePost() {
+            if (!userId) {
+                showToast('Authentication not complete. Please wait.', 'bg-red-500');
+                return;
+            }
+
+            const date = document.getElementById('postDate').value;
+            const platform = document.getElementById('postPlatform').value;
+            const type = document.getElementById('postType').value;
+            const topic = document.getElementById('postTopic').value.trim();
+            const script = document.getElementById('postScript').value.trim();
+
+            if (!date || !platform || !type || !topic || !script) {
+                showToast('Please fill in all primary fields (Date, Platform, Type, Topic, Script).', 'bg-red-500');
+                return;
+            }
+            
+            // Gather all data
+            const postData = {
+                date: date,
+                platform: platform,
+                type: type,
+                topic: topic,
+                script: script,
+                hooks: document.getElementById('postHooks').value.trim(),
+                resources: document.getElementById('postResources').value.trim(),
+                
+                // NEW: Assignment/Approval Fields
+                creatorId: document.getElementById('postCreator').value,
+                approver: document.getElementById('postApprover').value, // Now a select value
+                approval: document.getElementById('filterApproval').value, 
+                cost: parseFloat(document.getElementById('postCost').value) || 0, // NEW: Cost
+
+                views: parseFloat(document.getElementById('postViews').value) || 0,
+                likes: parseFloat(document.getElementById('postLikes').value) || 0,
+                comments: parseFloat(document.getElementById('postComments').value) || 0,
+                shares: parseFloat(document.getElementById('postShares').value) || 0,
+                lastUpdatedBy: userId,
+                timestamp: serverTimestamp() // Add server timestamp for better tracking
+            };
+            
+            try {
+                if (editingPostId) {
+                    // Update existing document
+                    const docRef = doc(getContentCollectionRef(), editingPostId);
+                    
+                    const existingPost = calendarData.find(p => p.id === editingPostId);
+                    if(existingPost) {
+                         // Retain existing status if editing an existing post
+                         postData.status = existingPost.status;
+                         postData.approval = existingPost.approval; // Retain approval status
+                    }
+
+                    await updateDoc(docRef, postData);
+                    showToast('Post updated successfully to the cloud!', 'bg-purple-500');
+                } else {
+                    // Add new document
+                    postData.status = 'Draft'; // Set initial status only on creation
+                    postData.approval = 'Pending'; // Set initial approval status
+                    await addDoc(getContentCollectionRef(), postData);
+                    showToast('New post scheduled and saved to the cloud!', 'bg-green-500');
+                }
+                
+                clearForm();
+            } catch (error) {
+                console.error("Error saving post to Firestore:", error);
+                showToast('Error saving data to the cloud.', 'bg-red-600');
+            }
+        }
+
+        /**
+         * Deletes a post by its ID using Firestore.
+         * @param {string} id - The unique document ID of the post to delete.
+         */
+        async function deletePost(id) {
+            // Using a simple confirmation dialog as a custom modal is complex
+            if (window.confirm('Are you sure you want to delete this post? This action is permanent.')) {
+                try {
+                    await deleteDoc(doc(getContentCollectionRef(), id));
+                    showToast('Post deleted from the cloud.', 'bg-red-500');
+                    if (editingPostId === id) {
+                        clearForm();
+                    }
+                } catch (error) {
+                    console.error("Error deleting document:", error);
+                    showToast('Error deleting post from the cloud.', 'bg-red-600');
+                }
+            }
+        }
+
+        /**
+         * Renders the calendar table based on the current calendarData array, applying filters.
+         */
+        function renderCalendar() {
+            const body = document.getElementById('calendarBody');
+            body.innerHTML = '';
+            
+            const filterPlatform = document.getElementById('filterPlatform').value;
+            const filterStatus = document.getElementById('filterStatus').value;
+            const filterApproval = document.getElementById('filterApproval').value;
+            
+            // Apply filtering logic
+            const filteredData = calendarData.filter(post => {
+                const platformMatch = filterPlatform === 'all' || post.platform === filterPlatform;
+                const statusMatch = filterStatus === 'all' || post.status === filterStatus;
+                const approvalMatch = filterApproval === 'all' || post.approval === filterApproval;
+                return platformMatch && statusMatch && approvalMatch;
+            });
+            
+            const emptyMessage = document.getElementById('emptyMessage');
+            
+            // Update empty message display based on overall data presence
+            if (calendarData.length === 0) {
+                emptyMessage.classList.remove('hidden');
+                return;
+            } else {
+                emptyMessage.classList.add('hidden');
+            }
+            
+            // Check if filtered data is empty
+            if (filteredData.length === 0) {
+                const row = body.insertRow();
+                const cell = row.insertCell();
+                cell.colSpan = 10; // 10 columns total now
+                cell.textContent = "No content matches the current filter criteria.";
+                cell.className = "text-center py-4 text-gray-500 italic";
+                return;
+            }
+
+
+            filteredData.forEach(post => {
+                // Determine if urgency class is needed
+                const urgencyClass = getUrgencyClass(post.date);
+
+                const row = body.insertRow();
+                row.className = \`hover:bg-indigo-50 transition duration-150 \${urgencyClass}\`; // Apply urgency class
+
+                // 1. Date
+                const dateCell = row.insertCell();
+                dateCell.textContent = new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                dateCell.className = "text-sm font-medium text-gray-900";
+                
+                // 2. Creator (ID Snippet)
+                const creatorCell = row.insertCell();
+                const creatorSnippet = post.creatorId ? post.creatorId.substring(0, 4) : 'N/A';
+                creatorCell.innerHTML = \`<span title="Creator ID: \${post.creatorId}" class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full text-xs font-mono">\${creatorSnippet}</span>\`;
+                
+                // 3. Platform
+                const platformCell = row.insertCell();
+                platformCell.textContent = post.platform;
+
+                // 4. Topic
+                const topicCell = row.insertCell();
+                topicCell.textContent = post.topic;
+                topicCell.className = "text-sm font-semibold text-indigo-700 max-w-xs truncate";
+                
+                // 5. Cost (NEW)
+                const costCell = row.insertCell();
+                const formattedCost = post.cost > 0 ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(post.cost) : 'Free';
+                costCell.innerHTML = \`<span class="font-medium text-gray-800">\${formattedCost}</span>\`;
+
+                // 6. Content Preview (Script Area + Icons)
+                const scriptCell = row.insertCell();
+                const scriptPreview = post.script.substring(0, 30) + (post.script.length > 30 ? '...' : '');
+                
+                let previewHtml = \`<span title="\${post.script}"> \${scriptPreview}</span>\`;
+
+                // Icons for Hooks and Resources
+                if (post.hooks && post.hooks.trim().length > 0) {
+                    previewHtml = \`<i data-lucide="sparkles" title="Hooks Present" class="w-4 h-4 text-purple-500 inline-block align-middle mr-1"></i>\` + previewHtml;
+                }
+                if (post.resources && post.resources.trim().length > 0) {
+                    previewHtml = \`<i data-lucide="link" title="Resources Present" class="w-4 h-4 text-pink-500 inline-block align-middle mr-1"></i>\` + previewHtml;
+                }
+
+                scriptCell.innerHTML = previewHtml;
+
+                // 7. Approval Status
+                const approvalCell = row.insertCell();
+                approvalCell.innerHTML = \`
+                    <select onchange="updateApproval('\${post.id}', this.value)" 
+                            class="bg-white border rounded-lg text-sm p-1.5 focus:ring-purple-500 focus:border-purple-500 \${getApprovalClass(post.approval)}">
+                        <option value="Pending" \${post.approval === 'Pending' ? 'selected' : ''}>Pending Review</option>
+                        <option value="Approved" \${post.approval === 'Approved' ? 'selected' : ''}>Approved</option>
+                        <option value="Changes Needed" \${post.approval === 'Changes Needed' ? 'selected' : ''}>Changes Needed</option>
+                        <option value="N/A" \${post.approval === 'N/A' ? 'selected' : ''}>N/A (Skip)</option>
+                    </select>
+                \`;
+                
+                // 8. Status
+                const statusCell = row.insertCell();
+                statusCell.innerHTML = \`
+                    <select onchange="updateStatus('\${post.id}', this.value)" 
+                            class="bg-white border rounded-lg text-sm p-1.5 focus:ring-purple-500 focus:border-purple-500 \${getStatusClass(post.status)}">
+                        <option value="Draft" \${post.status === 'Draft' ? 'selected' : ''}>Draft</option>
+                        <option value="Ready" \${post.status === 'Ready' ? 'selected' : ''}>Ready</option>
+                        <option value="Scheduled" \${post.status === 'Scheduled' ? 'selected' : ''}>Scheduled</option>
+                        <option value="Published" \${post.status === 'Published' ? 'selected' : ''}>Published</option>
+                    </select>
+                \`;
+                
+                // 9. Performance Summary
+                const performanceCell = row.insertCell();
+                performanceCell.className = "text-xs text-gray-700";
+                if (post.views > 0) {
+                    performanceCell.innerHTML = \`
+                        <span title="Views">V: \${new Intl.NumberFormat().format(post.views)}</span><br>
+                        <span title="Likes">L: \${new Intl.NumberFormat().format(post.likes)}</span>
+                    \`;
+                } else {
+                    performanceCell.textContent = 'N/A';
+                }
+
+                // 10. Actions
+                const actionsCell = row.insertCell();
+                actionsCell.className = "flex space-x-1";
+                actionsCell.innerHTML = \`
+                    <button onclick="deletePost('\${post.id}')" title="Delete Post" class="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-100 transition duration-150">
+                        \${lucide.createIcons()['trash'].toSvg({class: 'w-5 h-5'})}
+                    </button>
+                    <button onclick="editPost('\${post.id}')" title="Edit Post" class="text-indigo-500 hover:text-indigo-700 p-1 rounded-full hover:bg-indigo-100 transition duration-150">
+                        \${lucide.createIcons()['edit'].toSvg({class: 'w-5 h-5'})}
+                    </button>
+                \`;
+            });
+
+            // IMPORTANT: Re-render icons after adding dynamic HTML
+            lucide.createIcons();
+        }
+        
+        /**
+         * Checks if a post is scheduled within the next 7 days.
+         * @param {string} dateString - The post's date string.
+         * @returns {string} Tailwind class for urgency, or empty string.
+         */
+        function getUrgencyClass(dateString) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const publishDate = new Date(dateString);
+            publishDate.setHours(0, 0, 0, 0);
+
+            // Calculate the difference in days (ms in a day)
+            const diffTime = publishDate.getTime() - today.getTime();
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            // If the date is 0 to 7 days away (inclusive)
+            if (diffDays >= 0 && diffDays <= 7) {
+                return 'row-urgent';
+            }
+            return '';
+        }
+
+        /**
+         * Updates the status of a post using Firestore.
+         * @param {string} id - Post document ID.
+         * @param {string} newStatus - New status value.
+         */
+        async function updateStatus(id, newStatus) {
+            if (!userId) {
+                showToast('Authentication not complete. Cannot update status.', 'bg-red-500');
+                return;
+            }
+            try {
+                const docRef = doc(getContentCollectionRef(), id);
+                await updateDoc(docRef, { 
+                    status: newStatus,
+                    lastUpdatedBy: userId,
+                    timestamp: serverTimestamp()
+                });
+                showToast(\`Status updated to \${newStatus}.\`, 'bg-blue-500');
+            } catch (error) {
+                console.error("Error updating status:", error);
+                showToast('Error updating status in the cloud.', 'bg-red-600');
+            }
+        }
+        
+        /**
+         * Updates the approval status of a post using Firestore.
+         * @param {string} id - Post document ID.
+         * @param {string} newApproval - New approval value.
+         */
+        async function updateApproval(id, newApproval) {
+            if (!userId) {
+                showToast('Authentication not complete. Cannot update approval status.', 'bg-red-500');
+                return;
+            }
+            try {
+                const docRef = doc(getContentCollectionRef(), id);
+                await updateDoc(docRef, { 
+                    approval: newApproval,
+                    lastUpdatedBy: userId,
+                    timestamp: serverTimestamp()
+                });
+                showToast(\`Approval status updated to \${newApproval}.\`, 'bg-indigo-500');
+            } catch (error) {
+                console.error("Error updating approval status:", error);
+                showToast('Error updating approval status in the cloud.', 'bg-red-600');
+            }
+        }
+
+        /**
+         * Provides Tailwind classes based on content status.
+         */
+        function getStatusClass(status) {
+            switch (status) {
+                case 'Ready':
+                    return 'border-amber-400 text-amber-700 bg-amber-50'; // Brighter yellow
+                case 'Scheduled':
+                    return 'border-blue-400 text-blue-700 bg-blue-50'; // Brighter blue
+                case 'Published':
+                    return 'border-emerald-400 text-emerald-700 bg-emerald-50'; // Brighter green
+                case 'Draft':
+                default:
+                    return 'border-gray-400 text-gray-700 bg-gray-50'; // Lighter gray
+            }
+        }
+        
+        /**
+         * Provides Tailwind classes based on content approval status.
+         */
+        function getApprovalClass(approval) {
+            switch (approval) {
+                case 'Approved':
+                    return 'border-green-400 text-green-700 bg-green-50'; 
+                case 'Changes Needed':
+                    return 'border-red-400 text-red-700 bg-red-50';
+                case 'Pending':
+                    return 'border-yellow-400 text-yellow-700 bg-yellow-50';
+                case 'N/A':
+                default:
+                    return 'border-gray-400 text-gray-700 bg-gray-50';
+            }
+        }
+
+        /**
+         * Loads the full details into the form for non-destructive editing.
+         * @param {string} id - The document ID of the post to edit.
+         */
+        function editPost(id) {
+            const post = calendarData.find(p => p.id === id);
+            if (!post) return;
+
+            // Set form values for editing
+            document.getElementById('postDate').value = post.date;
+            document.getElementById('postPlatform').value = post.platform;
+            document.getElementById('postType').value = post.type;
+            document.getElementById('postTopic').value = post.topic;
+            document.getElementById('postScript').value = post.script;
+            
+            // Set planning fields
+            document.getElementById('postHooks').value = post.hooks || '';
+            document.getElementById('postResources').value = post.resources || '';
+            
+            // Set Assignment/Approval fields
+            document.getElementById('postApprover').value = post.approver || '';
+            document.getElementById('filterApproval').value = post.approval || 'Pending'; // Use the filter element ID as there's no dedicated input for approval status
+            
+            // Set Cost
+            document.getElementById('postCost').value = post.cost || 0;
+
+            // Set analytics values and show section
+            document.getElementById('postViews').value = post.views || 0;
+            document.getElementById('postLikes').value = post.likes || 0;
+            document.getElementById('postComments').value = post.comments || 0;
+            document.getElementById('postShares').value = post.shares || 0;
+            document.getElementById('analyticsInputSection').classList.remove('hidden');
+            
+            editingPostId = id; // Set the ID of the post being edited
+
+            // Change button to "Update Content"
+            const savePostBtn = document.getElementById('savePostBtn');
+            const buttonText = document.getElementById('buttonText');
+            const buttonIcon = document.getElementById('buttonIcon');
+
+            buttonText.textContent = 'Update Content';
+            savePostBtn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+            savePostBtn.classList.add('bg-purple-600', 'hover:bg-purple-700'); // Use purple for update
+            
+            // Update icon to save
+            buttonIcon.outerHTML = lucide.createIcons()['save'].toSvg({class: 'w-5 h-5', id: 'buttonIcon'});
+            lucide.createIcons(); // Re-render Lucide icons
+
+            // Scroll to top to see the form
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            showToast(\`Editing post for '\${post.topic}'. Click 'Update Content' to save changes.\`, 'bg-purple-500');
+        }
+        
+        // --- CSV Export Function ---
+        function exportCSV() {
+            if (calendarData.length === 0) {
+                showToast("No data to export.", "bg-red-500");
+                return;
+            }
+
+            // 1. Define Headers (order matters for the CSV)
+            const headers = [
+                "ID", "Date", "Platform", "Content Type", "Topic", "Cost", 
+                "Creator ID", "Approver", "Approval Status", "Workflow Status", 
+                "Views", "Likes", "Comments", "Shares", 
+                "Hooks", "Resources", "Script"
+            ];
+            
+            // 2. Map data to CSV rows
+            const csvRows = calendarData.map(post => {
+                const values = [
+                    post.id,
+                    post.date,
+                    post.platform,
+                    post.type,
+                    post.topic,
+                    post.cost || 0, // NEW Cost
+                    post.creatorId || '',
+                    post.approver || '',
+                    post.approval || 'Pending',
+                    post.status || 'Draft',
+                    post.views || 0,
+                    post.likes || 0,
+                    post.comments || 0,
+                    post.shares || 0,
+                    // Sanitize text fields by wrapping them in quotes and escaping existing quotes
+                    \`"\${(post.hooks || '').replace(/"/g, '""')}"\`,
+                    \`"\${(post.resources || '').replace(/"/g, '""')}"\`,
+                    \`"\${(post.script || '').replace(/"/g, '""')}"\`
+                ];
+                return values.join(',');
+            });
+
+            // 3. Combine headers and rows
+            const csvContent = [
+                headers.join(','),
+                ...csvRows
+            ].join('\n');
+
+            // 4. Create and trigger download
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const filename = \`content_calendar_export_\${new Date().toISOString().slice(0, 10)}.csv\`;
+
+            if (navigator.msSaveBlob) { // IE 10+
+                navigator.msSaveBlob(blob, filename);
+            } else {
+                const link = document.createElement("a");
+                if (link.download !== undefined) { 
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute("href", url);
+                    link.setAttribute("download", filename);
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    showToast("CSV file downloaded successfully!", "bg-green-600");
+                }
+            }
+        }
+        // --- END CSV Export Function ---
+
+
+        // --- Report Logic (Unchanged) ---
+
+        /**
+         * Helper function for creating stat cards
+         */
+        function createStatCard(title, value, icon, colorClass = 'indigo') {
+            return \`
+                <div class="bg-\${colorClass}-50 p-4 rounded-xl shadow-sm border-l-4 border-\${colorClass}-400">
+                    <div class="flex items-center space-x-3">
+                        <i data-lucide="\${icon}" class="w-6 h-6 text-\${colorClass}-500"></i>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">\${title}</p>
+                            <p class="text-2xl font-bold text-gray-900">\${new Intl.NumberFormat().format(value)}</p>
+                        </div>
+                    </div>
+                </div>
+            \`;
+        }
+
+        /**
+         * Helper function for creating post lists
+         */
+        function createPostList(posts, rankingTitle) {
+            if (posts.length === 0) return \`<p class="text-gray-500 italic">No posts found for this ranking.</p>\`;
+            
+            return \`
+                <ul class="space-y-3">
+                    \${posts.map(post => \`
+                        <li class="p-4 bg-gray-50 border border-gray-200 rounded-lg flex justify-between items-center shadow-sm hover:shadow-md transition duration-150">
+                            <div>
+                                <p class="font-semibold text-gray-800">\${post.topic} - <span class="text-indigo-500">\${post.platform} (\${post.type})</span></p>
+                                <p class="text-xs text-gray-500">\${new Date(post.date).toLocaleDateString()}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xl font-bold text-green-600">\${new Intl.NumberFormat().format(post.views)}</p>
+                                <p class="text-sm text-gray-500">Views</p>
+                            </div>
+                        </li>
+                    \`).join('')}
+                </ul>
+            \`;
+        }
+
+        /**
+         * Shows the report modal and generates the report content.
+         */
+        function showReportModal() {
+            const modal = document.getElementById('reportModal');
+            const modalContent = modal.querySelector('div');
+            modal.classList.remove('hidden');
+            // Animate in
+            requestAnimationFrame(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            });
+            generateReport();
+        }
+
+        /**
+         * Closes the report modal.
+         */
+        function closeReportModal() {
+            const modal = document.getElementById('reportModal');
+            const modalContent = modal.querySelector('div');
+            // Animate out
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300); // Wait for animation to finish
+        }
+
+        /**
+         * Generates the analytical report based on all data.
+         */
+        function generateReport() {
+            const reportContent = document.getElementById('reportContent');
+            
+            // Filter posts that have analytics data (views > 0)
+            const trackedPosts = calendarData.filter(p => p.views > 0);
+
+            if (trackedPosts.length === 0) {
+                reportContent.innerHTML = '<p class="text-center text-xl text-gray-600 py-10">No performance data entered yet. Edit a post and add Views/Likes/etc. to generate a report.</p>';
+                return;
+            }
+
+            // 1. Calculate Totals
+            const totals = trackedPosts.reduce((acc, post) => {
+                acc.views += post.views;
+                acc.likes += post.likes;
+                acc.comments += post.comments;
+                acc.shares += post.shares;
+                return acc;
+            }, { views: 0, likes: 0, comments: 0, shares: 0 });
+            
+            // Calculate Total Cost
+            const totalCost = calendarData.reduce((acc, post) => acc + (post.cost || 0), 0);
+
+
+            // 2. Calculate Engagement Rate (Simple: (Likes + Comments + Shares) / Views)
+            const totalEngagement = totals.likes + totals.comments + totals.shares;
+            const engagementRate = totals.views > 0 ? (totalEngagement / totals.views) * 100 : 0;
+
+            // 3. Find Top & Worst Performers (By Views)
+            const topPosts = [...trackedPosts].sort((a, b) => b.views - a.views).slice(0, 3);
+            const worstPosts = [...trackedPosts].sort((a, b) => a.views - b.views).slice(0, 3);
+
+
+            // 4. Build HTML Report
+            let html = \`
+                <h3 class="text-2xl font-bold mb-6 text-indigo-600">Overview Summary (\${trackedPosts.length} Posts Tracked)</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                    \${createStatCard('Total Views', totals.views, 'eye', 'indigo')}
+                    \${createStatCard('Total Engagement (L+C+S)', totalEngagement, 'message-square-heart', 'purple')}
+                    \${createStatCard('Avg. Engagement Rate', \`\${engagementRate.toFixed(2)}%\`, 'percent', 'blue')}
+                    \${createStatCard('Total Posts Tracked', trackedPosts.length, 'list-end', 'green')}
+                </div>
+                
+                <h3 class="text-2xl font-bold mb-6 text-gray-800 border-t pt-6 mt-6">Financial Summary</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-12">
+                    \${createStatCard('Total Budget Committed', new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(totalCost), 'wallet', 'red')}
+                    \${createStatCard('Average Cost Per Post', new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(totalCost / calendarData.length), 'dollar-sign', 'red')}
+                </div>
+
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-bold mb-4 text-green-600 flex items-center space-x-2">
+                            <i data-lucide="trophy" class="w-5 h-5"></i>
+                            <span>Top Performing Content</span>
+                        </h3>
+                        \${createPostList(topPosts)}
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-4 text-red-600 flex items-center space-x-2">
+                            <i data-lucide="trending-down" class="w-5 h-5"></i>
+                            <span>Lowest Performing Content</span>
+                        </h3>
+                        \${createPostList(worstPosts)}
+                    </div>
+                </div>
+            \`;
+
+            reportContent.innerHTML = html;
+            lucide.createIcons(); // Re-render icons in the report
+        }
+
+
+        // --- Utility: Simple Toast Message (Replacing alert/confirm) ---
+        function showToast(message, bgColor) {
+            let toast = document.getElementById('toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'toast';
+                toast.className = 'fixed bottom-5 right-5 p-4 rounded-lg text-white shadow-xl opacity-0 transition-opacity duration-300 z-50';
+                document.body.appendChild(toast);
+            }
+            
+            toast.className = \`fixed bottom-5 right-5 p-4 rounded-xl text-white shadow-xl z-50 \${bgColor} opacity-0 transition-opacity duration-300\`;
+            toast.textContent = message;
+            
+            // Show toast
+            requestAnimationFrame(() => {
+                toast.classList.remove('opacity-0');
+                toast.classList.add('opacity-100');
+            });
+
+            // Hide toast after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0');
+            }, 3000);
+        }
+
+        /**
+         * Populates the Approver select dropdown with TEAM_MEMBERS
+         */
+        function populateApproverSelect() {
+            const select = document.getElementById('postApprover');
+            select.innerHTML = '';
+            TEAM_MEMBERS.forEach(member => {
+                const option = document.createElement('option');
+                option.value = member.id;
+                option.textContent = member.name;
+                select.appendChild(option);
+            });
+        }
+
+
+        // Initialize Firebase on load
+        window.onload = () => {
+             populateApproverSelect();
+             initFirebaseAndAuth();
+             // We need to call lucide.createIcons() once the body is loaded to ensure all static icons render
+             lucide.createIcons();
+        };
+
+        // Make sure the lucide icons are rendered after loading data.
+        window.addEventListener('load', () => {
+             lucide.createIcons();
+        });
+
+    </script>
+</body>
+</html>
